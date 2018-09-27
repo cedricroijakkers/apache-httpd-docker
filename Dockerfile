@@ -47,6 +47,9 @@ ENV APACHE_DIST_URLS \
 	https://www-us.apache.org/dist/ \
 	https://www.apache.org/dist/ \
 	https://archive.apache.org/dist/
+	
+# copy our local patches into the container
+COPY patches/tlsv13-2.4.35.patch /tmp/tlsv13-2.4.35.patch
 
 # see https://httpd.apache.org/docs/2.4/install.html#requirements
 RUN set -eux; \
@@ -119,6 +122,8 @@ RUN set -eux; \
 		done; \
 	}; \
 	patches $HTTPD_PATCHES; \
+	patch -p1 < /tmp/tlsv13-2.4.35.patch; \
+	rm -rf /tmp/tlsv13-2.4.35.patch; \
 	\
 	gnuArch="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)"; \
 	./configure \
