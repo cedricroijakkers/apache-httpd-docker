@@ -13,9 +13,10 @@ RUN mkdir -p "$HTTPD_PREFIX" \
 	&& chown www-data:www-data "$HTTPD_PREFIX"
 WORKDIR $HTTPD_PREFIX
 
-# library for mod_http2 and mod_ssl (part of debian sid)
-ENV NGHTTP2_VERSION 1.33.0-1
+# library for mod_http2, mod_ssl, and brotli (part of debian sid)
+ENV NGHTTP2_VERSION 1.34.0-1
 ENV OPENSSL_VERSION 1.1.1-1
+ENV BROTLI_VERSION 1.0.6-1
 
 # install httpd runtime dependencies
 # https://httpd.apache.org/docs/2.4/install.html#requirements
@@ -31,6 +32,7 @@ RUN apt-get update \
 		libnghttp2-14=$NGHTTP2_VERSION \
 		libpcre++0v5 \
 		libssl1.1=$OPENSSL_VERSION \
+		brotli=$BROTLI_VERSION \
 		libxml2 \
 	&& rm -r /var/lib/apt/lists/*
 
@@ -65,6 +67,7 @@ RUN set -eux; \
 		libnghttp2-dev=$NGHTTP2_VERSION \
 		libpcre++-dev \
 		libssl-dev=$OPENSSL_VERSION \
+		libbrotli-dev=$BROTLI_VERSION \
 		libxml2-dev \
 		zlib1g-dev \
 		make \
