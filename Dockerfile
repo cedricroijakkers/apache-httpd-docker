@@ -36,8 +36,8 @@ RUN apt-get update \
 		libxml2 \
 	&& rm -r /var/lib/apt/lists/*
 
-ENV HTTPD_VERSION 2.4.35
-ENV HTTPD_SHA256 2607c6fdd4d12ac3f583127629291e9432b247b782396a563bec5678aae69b56
+ENV HTTPD_VERSION 2.4.37
+ENV HTTPD_SHA256 3498dc5c6772fac2eb7307dc7963122ffe243b5e806e0be4fb51974ff759d726
 
 # https://httpd.apache.org/security/vulnerabilities_24.html
 ENV HTTPD_PATCHES=""
@@ -49,9 +49,6 @@ ENV APACHE_DIST_URLS \
 	https://www-us.apache.org/dist/ \
 	https://www.apache.org/dist/ \
 	https://archive.apache.org/dist/
-	
-# copy our local patches into the container
-COPY patches/tlsv13-2.4.35.patch /tmp/tlsv13-2.4.35.patch
 
 # see https://httpd.apache.org/docs/2.4/install.html#requirements
 RUN set -eux; \
@@ -125,9 +122,6 @@ RUN set -eux; \
 		done; \
 	}; \
 	patches $HTTPD_PATCHES; \
-	patch -p1 < /tmp/tlsv13-2.4.35.patch; \
-	rm -rf /tmp/tlsv13-2.4.35.patch; \
-	\
 	gnuArch="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)"; \
 	./configure \
 		--build="$gnuArch" \
