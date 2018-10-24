@@ -5,12 +5,10 @@ A build of [Apache httpd](http://httpd.apache.org/) based on top off [Debian sid
 The usage is identical to the [official httpd image](https://hub.docker.com/_/httpd/), in fact the build is based for 90% from this image.
 
 # Software versions included
-- Apache http: version 2.4.35
-- nghttp2: version 1.33.0-1 (included in Debian sid)
-- Openssl: version 1.1.1-1 (included in Debian sid)
-
-# Patches applied
-- TLSv1.3 patch from Apache 2.5 (Trunk) backported and applied to Apache 2.4.35
+- Apache http: version 2.4.37
+- nghttp2: version 1.34.0-1 (included in Debian sid)
+- OpenSSL: version 1.1.1-1 (included in Debian sid)
+- Brotli: version 1.0.6-1 (included in Debian sid)
 
 # Maintainer
 This container is built and maintained by [Cedric Roijakkers](mailto:cedric@roijakkers.be).
