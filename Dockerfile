@@ -14,8 +14,8 @@ RUN mkdir -p "$HTTPD_PREFIX" \
 WORKDIR $HTTPD_PREFIX
 
 # library for mod_http2, mod_ssl, and brotli (part of debian sid)
-ENV NGHTTP2_VERSION 1.34.0-1
-ENV OPENSSL_VERSION 1.1.1-2
+ENV NGHTTP2_VERSION 1.35.1-1
+ENV OPENSSL_VERSION 1.1.1a-1
 ENV BROTLI_VERSION 1.0.7-1
 
 # install httpd runtime dependencies
@@ -33,6 +33,7 @@ RUN apt-get update \
 		libpcre++0v5 \
 		libssl1.1=$OPENSSL_VERSION \
 		brotli=$BROTLI_VERSION \
+		libbrotli1=$BROTLI_VERSION \
 		libxml2 \
 	&& rm -r /var/lib/apt/lists/*
 
@@ -100,7 +101,7 @@ RUN set -eux; \
 # gpg: key 995E35221AD84DFF: public key "Daniel Ruggeri (http://home.apache.org/~druggeri/) <druggeri@apache.org>" imported
 		B9E8213AEFB861AF35A41F2C995E35221AD84DFF \
 	; do \
-		gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$key"; \
+		gpg --batch --keyserver ha.pool.sks-keyservers.net --recv-keys "$key"; \
 	done; \
 	gpg --batch --verify httpd.tar.bz2.asc httpd.tar.bz2; \
 	command -v gpgconf && gpgconf --kill all || :; \
