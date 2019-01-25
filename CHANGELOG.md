@@ -1,3 +1,24 @@
+# Release 2.4.38
+Updated Apache httpd to version 2.4.38.
+
+Also introduced Alpine Linux builds. Debian-based builds will be maintained alongside Alpine-based builds from now on.
+
+Software versions:
+
+Debian-based:
+
+* Apache httpd 2.4.38
+* nghttp2 1.36.0-1
+* openssl 1.1.1a-1
+* brotli 1.0.7-2
+
+Alpine-based:
+
+* Apache httpd 2.4.38
+* nghttp2 1.35.1-r0
+* openssl 1.1.1a-r1
+* brotli 1.0.7-r1
+
 # Release 2.4.37.2
 * Container update because of new dependency versions (OpenSSL and nghttp2). Apache httpd version unchanged at 2.4.37.
 * Added libbrotli1 because using mod_brotli would fail at run-time because of missing library.
