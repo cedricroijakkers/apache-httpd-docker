@@ -15,7 +15,7 @@ WORKDIR $HTTPD_PREFIX
 
 # library for mod_http2, mod_ssl, and brotli (part of debian sid)
 ENV NGHTTP2_VERSION 1.37.0-1
-ENV OPENSSL_VERSION 1.1.1b-1
+ENV OPENSSL_VERSION 1.1.1b-2
 ENV BROTLI_VERSION 1.0.7-2
 
 # install httpd runtime dependencies
@@ -32,8 +32,8 @@ RUN set -eux; \
 	; \
 	rm -rf /var/lib/apt/lists/*
 
-ENV HTTPD_VERSION 2.4.38
-ENV HTTPD_SHA256 7dc65857a994c98370dc4334b260101a7a04be60e6e74a5c57a6dee1bc8f394a
+ENV HTTPD_VERSION 2.4.39
+ENV HTTPD_SHA256 b4ca9d05773aa59b54d66cd8f4744b945289f084d3be17d7981d1783a5decfa2
 
 # https://httpd.apache.org/security/vulnerabilities_24.html
 ENV HTTPD_PATCHES=""
@@ -137,7 +137,10 @@ RUN set -eux; \
 	sed -ri \
 		-e 's!^(\s*CustomLog)\s+\S+!\1 /proc/self/fd/1!g' \
 		-e 's!^(\s*ErrorLog)\s+\S+!\1 /proc/self/fd/2!g' \
-		"$HTTPD_PREFIX/conf/httpd.conf"; \
+		-e 's!^(\s*TransferLog)\s+\S+!\1 /proc/self/fd/1!g' \
+		"$HTTPD_PREFIX/conf/httpd.conf" \
+		"$HTTPD_PREFIX/conf/extra/httpd-ssl.conf" \
+	; \
 	\
 # reset apt-mark's "manual" list so that "purge --auto-remove" will remove all build dependencies
 	apt-mark auto '.*' > /dev/null; \
