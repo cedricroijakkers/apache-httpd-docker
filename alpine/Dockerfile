@@ -3,7 +3,7 @@ FROM alpine:edge
 MAINTAINER Cedric Roijakkers <cedric@roijakkers.be>
 
 # library for mod_http2, mod_ssl, and brotli (part of alpine edge)
-ENV NGHTTP2_VERSION 1.39.1-r0
+ENV NGHTTP2_VERSION 1.39.2-r0
 ENV OPENSSL_VERSION 1.1.1c-r0
 ENV BROTLI_VERSION 1.0.7-r1
 
@@ -22,19 +22,11 @@ RUN mkdir -p "$HTTPD_PREFIX" \
 	&& chown www-data:www-data "$HTTPD_PREFIX"
 WORKDIR $HTTPD_PREFIX
 
-ENV HTTPD_VERSION 2.4.39
-ENV HTTPD_SHA256 b4ca9d05773aa59b54d66cd8f4744b945289f084d3be17d7981d1783a5decfa2
+ENV HTTPD_VERSION 2.4.41
+ENV HTTPD_SHA256 133d48298fe5315ae9366a0ec66282fa4040efa5d566174481077ade7d18ea40
 
 # https://httpd.apache.org/security/vulnerabilities_24.html
 ENV HTTPD_PATCHES=""
-
-ENV APACHE_DIST_URLS \
-# https://issues.apache.org/jira/browse/INFRA-8753?focusedCommentId=14735394#comment-14735394
-	https://www.apache.org/dyn/closer.cgi?action=download&filename= \
-# if the version is outdated (or we're grabbing the .asc file), we might have to pull from the dist/archive :/
-	https://www-us.apache.org/dist/ \
-	https://www.apache.org/dist/ \
-	https://archive.apache.org/dist/
 
 # see https://httpd.apache.org/docs/2.4/install.html#requirements
 RUN set -eux; \
@@ -55,6 +47,9 @@ RUN set -eux; \
 		gcc \
 		gnupg \
 		libc-dev \
+		# mod_md
+		curl-dev \
+		jansson-dev \
 		# we only need libressl to download with wget
 		libressl \
 		# mod_session_crypto
@@ -80,7 +75,14 @@ RUN set -eux; \
 		local distFile="$1"; shift; \
 		local success=; \
 		local distUrl=; \
-		for distUrl in $APACHE_DIST_URLS; do \
+		for distUrl in \
+# https://issues.apache.org/jira/browse/INFRA-8753?focusedCommentId=14735394#comment-14735394
+			'https://www.apache.org/dyn/closer.cgi?action=download&filename=' \
+# if the version is outdated (or we're grabbing the .asc file), we might have to pull from the dist/archive :/
+			https://www-us.apache.org/dist/ \
+			https://www.apache.org/dist/ \
+			https://archive.apache.org/dist/ \
+		; do \
 			if wget -O "$f" "$distUrl$distFile" && [ -s "$f" ]; then \
 				success=1; \
 				break; \
