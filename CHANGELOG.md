@@ -1,3 +1,22 @@
+# Release 2.4.41
+Updated Apache httpd to version 2.4.41 (including upstream Dockerfile changes to allow compilation of `mod_md`).
+
+Software versions:
+
+Debian-based:
+
+* Apache httpd 2.4.41
+* nghttp2 1.39.2-1
+* openssl 1.1.1c-1
+* brotli 1.0.7-2
+
+Alpine-based:
+
+* Apache httpd 2.4.41
+* nghttp2 1.39.2-r0
+* openssl 1.1.1c-r0
+* brotli 1.0.7-r1
+
 # Release 2.4.39.1
 Updated dependencies (OpenSSL in both Debian and Alpine, nghttp2 in Alpine only).
 
