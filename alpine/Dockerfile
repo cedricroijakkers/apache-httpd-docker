@@ -3,9 +3,9 @@ FROM alpine:edge
 MAINTAINER Cedric Roijakkers <cedric@roijakkers.be>
 
 # library for mod_http2, mod_ssl, and brotli (part of alpine edge)
-ENV NGHTTP2_VERSION 1.39.2-r0
-ENV OPENSSL_VERSION 1.1.1c-r0
-ENV BROTLI_VERSION 1.0.7-r1
+ENV NGHTTP2_VERSION 1.39.2-r2
+ENV OPENSSL_VERSION 1.1.1d-r2
+ENV BROTLI_VERSION 1.0.7-r2
 
 # ensure www-data user exists
 RUN set -x \
