@@ -1,3 +1,22 @@
+# Release 2.4.41.3
+Updated dependencies (Debian: OpenSSL; Alpine: OpenSSL).
+
+Software versions:
+
+Debian-based:
+
+* Apache httpd 2.4.41
+* nghttp2 1.40.0-1
+* openssl 1.1.1e-1
+* brotli 1.0.7-6
+
+Alpine-based:
+
+* Apache httpd 2.4.41
+* nghttp2 1.40.0-r0
+* openssl 1.1.1e-r0
+* brotli 1.0.7-r4
+
 # Release 2.4.41.2
 Updated dependencies (Debian: OpenSSL and Brotli; Alpine: nghttp2, OpenSSL, and Brotli).
 
