@@ -1,3 +1,22 @@
+# Release 2.4.43
+Updated Apache httpd to version 2.4.43 and updated OpenSSL to 1.1.1f.
+
+Software versions:
+
+Debian-based:
+
+* Apache httpd 2.4.43
+* nghttp2 1.40.0-1
+* openssl 1.1.1f-1
+* brotli 1.0.7-6
+
+Alpine-based:
+
+* Apache httpd 2.4.41
+* nghttp2 1.40.0-r0
+* openssl 1.1.1f-r0
+* brotli 1.0.7-r4
+
 # Release 2.4.41.3
 Updated dependencies (Debian: OpenSSL; Alpine: OpenSSL).
 

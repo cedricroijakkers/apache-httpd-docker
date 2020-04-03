@@ -15,7 +15,7 @@ WORKDIR $HTTPD_PREFIX
 
 # library for mod_http2, mod_ssl, and brotli (part of debian sid)
 ENV NGHTTP2_VERSION 1.40.0-1
-ENV OPENSSL_VERSION 1.1.1e-1
+ENV OPENSSL_VERSION 1.1.1f-1
 ENV BROTLI_VERSION 1.0.7-6
 
 # install httpd runtime dependencies
@@ -32,8 +32,8 @@ RUN set -eux; \
 	; \
 	rm -rf /var/lib/apt/lists/*
 
-ENV HTTPD_VERSION 2.4.41
-ENV HTTPD_SHA256 133d48298fe5315ae9366a0ec66282fa4040efa5d566174481077ade7d18ea40
+ENV HTTPD_VERSION 2.4.43
+ENV HTTPD_SHA256 a497652ab3fc81318cdc2a203090a999150d86461acff97c1065dc910fe10f43
 
 # https://httpd.apache.org/security/vulnerabilities_24.html
 ENV HTTPD_PATCHES=""

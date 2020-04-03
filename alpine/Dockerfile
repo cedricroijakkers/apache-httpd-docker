@@ -4,7 +4,7 @@ MAINTAINER Cedric Roijakkers <cedric@roijakkers.be>
 
 # library for mod_http2, mod_ssl, and brotli (part of alpine edge)
 ENV NGHTTP2_VERSION 1.40.0-r0
-ENV OPENSSL_VERSION 1.1.1e-r0
+ENV OPENSSL_VERSION 1.1.1f-r0
 ENV BROTLI_VERSION 1.0.7-r4
 
 # ensure www-data user exists
@@ -22,8 +22,8 @@ RUN mkdir -p "$HTTPD_PREFIX" \
 	&& chown www-data:www-data "$HTTPD_PREFIX"
 WORKDIR $HTTPD_PREFIX
 
-ENV HTTPD_VERSION 2.4.41
-ENV HTTPD_SHA256 133d48298fe5315ae9366a0ec66282fa4040efa5d566174481077ade7d18ea40
+ENV HTTPD_VERSION 2.4.43
+ENV HTTPD_SHA256 a497652ab3fc81318cdc2a203090a999150d86461acff97c1065dc910fe10f43
 
 # https://httpd.apache.org/security/vulnerabilities_24.html
 ENV HTTPD_PATCHES=""
