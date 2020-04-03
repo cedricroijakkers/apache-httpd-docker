@@ -5,19 +5,19 @@ A build of [Apache httpd](http://httpd.apache.org/) based on top off [Debian sid
 The usage is identical to the [official httpd images](https://hub.docker.com/_/httpd/), in fact the build is based for 90% from this image.
 
 # Version
-This container is numbered version 2.4.41, to match with the latest Apache code.
+This container is numbered version 2.4.43, to match with the latest Apache code.
 
 # Software versions included
 ## Debian-based build
-- Apache http: version 2.4.41
+- Apache http: version 2.4.43
 - nghttp2: version 1.40.0-1 (included in Debian sid)
-- OpenSSL: version 1.1.1e-1 (included in Debian sid)
+- OpenSSL: version 1.1.1f-1 (included in Debian sid)
 - Brotli: version 1.0.7-6 (included in Debian sid)
 
 ## Alpine-based build
-- Apache http: version 2.4.41
+- Apache http: version 2.4.43
 - nghttp2: version 1.40.0-r0 (included in Alpine edge main)
-- OpenSSL: version 1.1.1e-r0 (included in Alpine edge main)
+- OpenSSL: version 1.1.1f-r0 (included in Alpine edge main)
 - Brotli: version 1.0.7-r4 (included in Alpine edge testing)
 
 # Maintainer
