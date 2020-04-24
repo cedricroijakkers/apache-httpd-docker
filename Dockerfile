@@ -1,6 +1,6 @@
 FROM debian:sid-slim
 
-MAINTAINER Cedric Roijakkers <cedric@roijakkers.be>
+LABEL maintainer="Cedric Roijakkers <cedric@roijakkers.be>"
 
 ENV DEBIAN_FRONTEND=noninteractive 
 
@@ -15,8 +15,8 @@ WORKDIR $HTTPD_PREFIX
 
 # library for mod_http2, mod_ssl, and brotli (part of debian sid)
 ENV NGHTTP2_VERSION 1.40.0-1
-ENV OPENSSL_VERSION 1.1.1f-1
-ENV BROTLI_VERSION 1.0.7-6
+ENV OPENSSL_VERSION 1.1.1g-1
+ENV BROTLI_VERSION 1.0.7-6+b1
 
 # install httpd runtime dependencies
 # https://httpd.apache.org/docs/2.4/install.html#requirements
