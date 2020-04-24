@@ -11,13 +11,13 @@ This container is numbered version 2.4.43, to match with the latest Apache code.
 ## Debian-based build
 - Apache http: version 2.4.43
 - nghttp2: version 1.40.0-1 (included in Debian sid)
-- OpenSSL: version 1.1.1f-1 (included in Debian sid)
-- Brotli: version 1.0.7-6 (included in Debian sid)
+- OpenSSL: version 1.1.1g-1 (included in Debian sid)
+- Brotli: version 1.0.7-6+b1 (included in Debian sid)
 
 ## Alpine-based build
 - Apache http: version 2.4.43
 - nghttp2: version 1.40.0-r0 (included in Alpine edge main)
-- OpenSSL: version 1.1.1f-r0 (included in Alpine edge main)
+- OpenSSL: version 1.1.1g-r0 (included in Alpine edge main)
 - Brotli: version 1.0.7-r4 (included in Alpine edge testing)
 
 # Maintainer

@@ -1,10 +1,10 @@
 FROM alpine:edge
 
-MAINTAINER Cedric Roijakkers <cedric@roijakkers.be>
+LABEL maintainer="Cedric Roijakkers <cedric@roijakkers.be>"
 
 # library for mod_http2, mod_ssl, and brotli (part of alpine edge)
 ENV NGHTTP2_VERSION 1.40.0-r0
-ENV OPENSSL_VERSION 1.1.1f-r0
+ENV OPENSSL_VERSION 1.1.1g-r0
 ENV BROTLI_VERSION 1.0.7-r4
 
 # ensure www-data user exists
