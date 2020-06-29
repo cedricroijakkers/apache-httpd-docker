@@ -1,0 +1,307 @@
+Merge r1609680, r1609688, r1641381, r1826289, r1826313, r1878467 from trunk:
+
+mod_proxy: add ap_proxy_define_match_worker() and use it for ProxyPassMatch
+and ProxyMatch section to distinguish between normal workers and workers
+with regex substitutions in the name. Implement handling of such workers
+in ap_proxy_get_worker(). PR 43513
+
+
+mod_proxy: better check for worker->s->is_name_matchable
+
+
+Return a match whenever we get to the end of the worker name, regardless
+of whether there is URL left.
+
+ProxyPassMatch had been using the default worker in trunk.
+
+
+Follow up to r1609680: simpler/faster ap_proxy_strcmp_ematch().
+
+No functional change.
+
+
+Follow up to r1609680: further simplify/optimize ap_proxy_strcmp_ematch().
+
+While at it, same treatment for its mother ap_strcmp_match().
+
+
+make sure the $n of the regular expressions is not included the name of the worker.
+for example,  the example:
+ProxyPassMatch "^(/.*\.gif)$" "http://backend.example.com:8000$1"
+was giving:
+AH00526: Syntax error on line nnn of bla/conf/httpd.conf:
+ProxyPass Unable to parse URL: http://backend.example.com:8000$1
+
+
+Submitted by: jkaluza, covener, ylavic, ylavic, jfclere
+
+Index: modules/proxy/mod_proxy.c
+===================================================================
+--- modules/proxy/mod_proxy.c	(revision 1878991)
++++ modules/proxy/mod_proxy.c	(working copy)
+@@ -1866,15 +1866,30 @@ static const char *
+         new->balancer = balancer;
+     }
+     else {
+-        proxy_worker *worker = ap_proxy_get_worker(cmd->temp_pool, NULL, conf, ap_proxy_de_socketfy(cmd->pool, r));
++        proxy_worker *worker = ap_proxy_get_worker(cmd->temp_pool, NULL, conf, new->real);
+         int reuse = 0;
+         if (!worker) {
+-            const char *err = ap_proxy_define_worker(cmd->pool, &worker, NULL, conf, r, 0);
++            const char *err;
++            if (use_regex) {
++                err = ap_proxy_define_match_worker(cmd->pool, &worker, NULL,
++                                                   conf, r, 0);
++            }
++            else {
++                err = ap_proxy_define_worker(cmd->pool, &worker, NULL,
++                                             conf, r, 0);
++            }
+             if (err)
+                 return apr_pstrcat(cmd->temp_pool, "ProxyPass ", err, NULL);
+ 
+             PROXY_COPY_CONF_PARAMS(worker, conf);
+-        } else {
++        }
++        else if ((use_regex != 0) ^ (worker->s->is_name_matchable != 0)) {
++            return apr_pstrcat(cmd->temp_pool, "ProxyPass/<Proxy> and "
++                               "ProxyPassMatch/<ProxyMatch> can't be used "
++                               "altogether with the same worker name ",
++                               "(", worker->s->name, ")", NULL);
++        }
++        else {
+             reuse = 1;
+             ap_log_error(APLOG_MARK, APLOG_INFO, 0, cmd->server, APLOGNO(01145)
+                          "Sharing worker '%s' instead of creating new worker '%s'",
+@@ -2501,6 +2516,7 @@ static const char *proxysection(cmd_parms *cmd, vo
+     char *word, *val;
+     proxy_balancer *balancer = NULL;
+     proxy_worker *worker = NULL;
++    int use_regex = 0;
+ 
+     const char *err = ap_check_cmd_context(cmd, NOT_IN_DIR_CONTEXT);
+     proxy_server_conf *sconf =
+@@ -2539,6 +2555,7 @@ static const char *proxysection(cmd_parms *cmd, vo
+         if (!r) {
+             return "Regex could not be compiled";
+         }
++        use_regex = 1;
+     }
+ 
+     /* initialize our config and fetch it */
+@@ -2588,12 +2605,24 @@ static const char *proxysection(cmd_parms *cmd, vo
+             worker = ap_proxy_get_worker(cmd->temp_pool, NULL, sconf,
+                                          ap_proxy_de_socketfy(cmd->temp_pool, (char*)conf->p));
+             if (!worker) {
+-                err = ap_proxy_define_worker(cmd->pool, &worker, NULL,
+-                                          sconf, conf->p, 0);
++                if (use_regex) {
++                    err = ap_proxy_define_match_worker(cmd->pool, &worker, NULL,
++                                                       sconf, conf->p, 0);
++                }
++                else {
++                    err = ap_proxy_define_worker(cmd->pool, &worker, NULL,
++                                                 sconf, conf->p, 0);
++                }
+                 if (err)
+                     return apr_pstrcat(cmd->temp_pool, thiscmd->name,
+                                        " ", err, NULL);
+             }
++            else if ((use_regex != 0) ^ (worker->s->is_name_matchable != 0)) {
++                return apr_pstrcat(cmd->temp_pool, "ProxyPass/<Proxy> and "
++                                   "ProxyPassMatch/<ProxyMatch> can't be used "
++                                   "altogether with the same worker name ",
++                                   "(", worker->s->name, ")", NULL);
++            }
+             if (!worker->section_config) {
+                 worker->section_config = new_dir_conf;
+             }
+Index: modules/proxy/mod_proxy.h
+===================================================================
+--- modules/proxy/mod_proxy.h	(revision 1878991)
++++ modules/proxy/mod_proxy.h	(working copy)
+@@ -453,6 +453,7 @@ typedef struct {
+     unsigned int     keepalive_set:1;
+     unsigned int     disablereuse_set:1;
+     unsigned int     was_malloced:1;
++    unsigned int     is_name_matchable:1;
+     char      hcuri[PROXY_WORKER_MAX_ROUTE_SIZE];     /* health check uri */
+     char      hcexpr[PROXY_WORKER_MAX_SCHEME_SIZE];   /* name of condition expr for health check */
+     int             passes;     /* number of successes for check to pass */
+@@ -754,6 +755,24 @@ PROXY_DECLARE(char *) ap_proxy_define_worker(apr_p
+                                              int do_malloc);
+ 
+ /**
++ * Define and Allocate space for the ap_strcmp_match()able worker to proxy
++ * configuration.
++ * @param p         memory pool to allocate worker from
++ * @param worker    the new worker
++ * @param balancer  the balancer that the worker belongs to
++ * @param conf      current proxy server configuration
++ * @param url       url containing worker name (produces match pattern)
++ * @param do_malloc true if shared struct should be malloced
++ * @return          error message or NULL if successful (*worker is new worker)
++ */
++PROXY_DECLARE(char *) ap_proxy_define_match_worker(apr_pool_t *p,
++                                             proxy_worker **worker,
++                                             proxy_balancer *balancer,
++                                             proxy_server_conf *conf,
++                                             const char *url,
++                                             int do_malloc);
++
++/**
+  * Share a defined proxy worker via shm
+  * @param worker  worker to be shared
+  * @param shm     location of shared info
+Index: modules/proxy/proxy_util.c
+===================================================================
+--- modules/proxy/proxy_util.c	(revision 1878991)
++++ modules/proxy/proxy_util.c	(working copy)
+@@ -1658,6 +1658,46 @@ PROXY_DECLARE(char *) ap_proxy_worker_name(apr_poo
+     return apr_pstrcat(p, "unix:", worker->s->uds_path, "|", worker->s->name, NULL);
+ }
+ 
++/*
++ * Taken from ap_strcmp_match() :
++ * Match = 0, NoMatch = 1, Abort = -1, Inval = -2
++ * Based loosely on sections of wildmat.c by Rich Salz
++ * Hmmm... shouldn't this really go component by component?
++ *
++ * Adds handling of the "\<any>" => "<any>" unescaping.
++ */
++static int ap_proxy_strcmp_ematch(const char *str, const char *expected)
++{
++    apr_size_t x, y;
++
++    for (x = 0, y = 0; expected[y]; ++y, ++x) {
++        if (expected[y] == '$' && apr_isdigit(expected[y + 1])) {
++            do {
++                y += 2;
++            } while (expected[y] == '$' && apr_isdigit(expected[y + 1]));
++            if (!expected[y])
++                return 0;
++            while (str[x]) {
++                int ret;
++                if ((ret = ap_proxy_strcmp_ematch(&str[x++], &expected[y])) != 1)
++                    return ret;
++            }
++            return -1;
++        }
++        else if (!str[x]) {
++            return -1;
++        }
++        else if (expected[y] == '\\' && !expected[++y]) {
++            /* NUL is an invalid char! */
++            return -2;
++        }
++        if (str[x] != expected[y])
++            return 1;
++    }
++    /* We got all the way through the worker path without a difference */
++    return 0;
++}
++
+ PROXY_DECLARE(proxy_worker *) ap_proxy_get_worker(apr_pool_t *p,
+                                                   proxy_balancer *balancer,
+                                                   proxy_server_conf *conf,
+@@ -1720,11 +1760,15 @@ PROXY_DECLARE(proxy_worker *) ap_proxy_get_worker(
+             if ( ((worker_name_length = strlen(worker->s->name)) <= url_length)
+                 && (worker_name_length >= min_match)
+                 && (worker_name_length > max_match)
+-                && (strncmp(url_copy, worker->s->name, worker_name_length) == 0) ) {
++                && (worker->s->is_name_matchable
++                    || strncmp(url_copy, worker->s->name,
++                               worker_name_length) == 0)
++                && (!worker->s->is_name_matchable
++                    || ap_proxy_strcmp_ematch(url_copy,
++                                              worker->s->name) == 0) ) {
+                 max_worker = worker;
+                 max_match = worker_name_length;
+             }
+-
+         }
+     } else {
+         worker = (proxy_worker *)conf->workers->elts;
+@@ -1732,7 +1776,12 @@ PROXY_DECLARE(proxy_worker *) ap_proxy_get_worker(
+             if ( ((worker_name_length = strlen(worker->s->name)) <= url_length)
+                 && (worker_name_length >= min_match)
+                 && (worker_name_length > max_match)
+-                && (strncmp(url_copy, worker->s->name, worker_name_length) == 0) ) {
++                && (worker->s->is_name_matchable
++                    || strncmp(url_copy, worker->s->name,
++                               worker_name_length) == 0)
++                && (!worker->s->is_name_matchable
++                    || ap_proxy_strcmp_ematch(url_copy,
++                                              worker->s->name) == 0) ) {
+                 max_worker = worker;
+                 max_match = worker_name_length;
+             }
+@@ -1866,6 +1915,7 @@ PROXY_DECLARE(char *) ap_proxy_define_worker(apr_p
+     wshared->hash.def = ap_proxy_hashfunc(wshared->name, PROXY_HASHFUNC_DEFAULT);
+     wshared->hash.fnv = ap_proxy_hashfunc(wshared->name, PROXY_HASHFUNC_FNV);
+     wshared->was_malloced = (do_malloc != 0);
++    wshared->is_name_matchable = 0;
+     if (sockpath) {
+         if (PROXY_STRNCPY(wshared->uds_path, sockpath) != APR_SUCCESS) {
+             return apr_psprintf(p, "worker uds path (%s) too long", sockpath);
+@@ -1888,6 +1938,28 @@ PROXY_DECLARE(char *) ap_proxy_define_worker(apr_p
+     return NULL;
+ }
+ 
++PROXY_DECLARE(char *) ap_proxy_define_match_worker(apr_pool_t *p,
++                                             proxy_worker **worker,
++                                             proxy_balancer *balancer,
++                                             proxy_server_conf *conf,
++                                             const char *url,
++                                             int do_malloc)
++{
++    char *err;
++    char *rurl = apr_pstrdup(p, url);
++    char *pdollar = ap_strchr(rurl, '$');
++
++    if (pdollar != NULL)
++        *pdollar = '\0'; 
++    err = ap_proxy_define_worker(p, worker, balancer, conf, rurl, do_malloc);
++    if (err) {
++        return err;
++    }
++
++    (*worker)->s->is_name_matchable = 1;
++    return NULL;
++}
++
+ /*
+  * Create an already defined worker and free up memory
+  */
+Index: server/util.c
+===================================================================
+--- server/util.c	(revision 1878991)
++++ server/util.c	(working copy)
+@@ -188,8 +188,6 @@ AP_DECLARE(int) ap_strcmp_match(const char *str, c
+     int x, y;
+ 
+     for (x = 0, y = 0; expected[y]; ++y, ++x) {
+-        if ((!str[x]) && (expected[y] != '*'))
+-            return -1;
+         if (expected[y] == '*') {
+             while (expected[++y] == '*');
+             if (!expected[y])
+@@ -201,6 +199,8 @@ AP_DECLARE(int) ap_strcmp_match(const char *str, c
+             }
+             return -1;
+         }
++        else if (!str[x])
++            return -1;
+         else if ((expected[y] != '?') && (str[x] != expected[y]))
+             return 1;
+     }
+Index: .
+===================================================================
+--- .	(revision 1878991)
++++ .	(working copy)
+
+Property changes on: .
+___________________________________________________________________
+Modified: svn:mergeinfo
+## -0,0 +0,1 ##
+   Merged /httpd/httpd/trunk:r1609680,1609688,1641381,1826289,1826313,1878467

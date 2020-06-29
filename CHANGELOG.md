@@ -1,3 +1,24 @@
+# Release 2.4.43.2
+Updated dependencies (Debian: OpenSSL and Brotli; Alpine: OpenSSL) and added patch for Apache bug 64537.
+
+Software versions:
+
+Debian-based:
+
+* Apache httpd 2.4.43
+* nghttp2 1.41.0-2
+* openssl 1.1.1g-1
+* brotli 1.0.7-6.1
+
+Alpine-based:
+
+* Apache httpd 2.4.43
+* nghttp2 1.41.0-r0
+* openssl 1.1.1g-r0
+* brotli 1.0.7-r5
+
+Also applied a patch for the following bug: https://bz.apache.org/bugzilla/show_bug.cgi?id=64537
+
 # Release 2.4.43.1
 Updated dependencies (Debian: OpenSSL and Brotli; Alpine: OpenSSL).
 
