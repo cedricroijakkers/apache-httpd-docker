@@ -3,9 +3,9 @@ FROM alpine:edge
 LABEL maintainer="Cedric Roijakkers <cedric@roijakkers.be>"
 
 # library for mod_http2, mod_ssl, and brotli (part of alpine edge)
-ENV NGHTTP2_VERSION 1.40.0-r0
+ENV NGHTTP2_VERSION 1.41.0-r0
 ENV OPENSSL_VERSION 1.1.1g-r0
-ENV BROTLI_VERSION 1.0.7-r4
+ENV BROTLI_VERSION 1.0.7-r5
 
 # ensure www-data user exists
 RUN set -x \
@@ -27,6 +27,9 @@ ENV HTTPD_SHA256 a497652ab3fc81318cdc2a203090a999150d86461acff97c1065dc910fe10f4
 
 # https://httpd.apache.org/security/vulnerabilities_24.html
 ENV HTTPD_PATCHES=""
+
+# Add patches that need to be applied
+ADD patches/bug_64537.patch /tmp/bug_64537.patch
 
 # see https://httpd.apache.org/docs/2.4/install.html#requirements
 RUN set -eux; \
@@ -129,6 +132,9 @@ RUN set -eux; \
 	gnuArch="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)"; \
 	# remove libressl again as we've already downloaded everything at this point and we want to compile against openssl for tlsv1.3
 	apk del libressl && \
+	# apply the necessary patches
+	patch -p0 < /tmp/bug_64537.patch; \
+	rm -rf /tmp/bug_64537.patch; \
 	./configure \
 		--build="$gnuArch" \
 		--prefix="$HTTPD_PREFIX" \

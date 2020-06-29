@@ -14,9 +14,9 @@ RUN mkdir -p "$HTTPD_PREFIX" \
 WORKDIR $HTTPD_PREFIX
 
 # library for mod_http2, mod_ssl, and brotli (part of debian sid)
-ENV NGHTTP2_VERSION 1.40.0-1
+ENV NGHTTP2_VERSION 1.41.0-2
 ENV OPENSSL_VERSION 1.1.1g-1
-ENV BROTLI_VERSION 1.0.7-6+b1
+ENV BROTLI_VERSION 1.0.7-6.1
 
 # install httpd runtime dependencies
 # https://httpd.apache.org/docs/2.4/install.html#requirements
@@ -37,6 +37,9 @@ ENV HTTPD_SHA256 a497652ab3fc81318cdc2a203090a999150d86461acff97c1065dc910fe10f4
 
 # https://httpd.apache.org/security/vulnerabilities_24.html
 ENV HTTPD_PATCHES=""
+
+# Add patches that need to be applied
+ADD patches/bug_64537.patch /tmp/bug_64537.patch
 
 # see https://httpd.apache.org/docs/2.4/install.html#requirements
 RUN set -eux; \
@@ -123,6 +126,9 @@ RUN set -eux; \
 	patches $HTTPD_PATCHES; \
 	\
 	gnuArch="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)"; \
+	# apply the necessary patches
+	patch -p0 < /tmp/bug_64537.patch; \
+	rm -rf /tmp/bug_64537.patch; \
 	./configure \
 		--build="$gnuArch" \
 		--prefix="$HTTPD_PREFIX" \

@@ -10,15 +10,17 @@ This container is numbered version 2.4.43, to match with the latest Apache code.
 # Software versions included
 ## Debian-based build
 - Apache http: version 2.4.43
-- nghttp2: version 1.40.0-1 (included in Debian sid)
-- OpenSSL: version 1.1.1g-1 (included in Debian sid)
-- Brotli: version 1.0.7-6+b1 (included in Debian sid)
+- nghttp2 1.41.0-2
+- openssl 1.1.1g-1
+- brotli 1.0.7-6.1
 
 ## Alpine-based build
 - Apache http: version 2.4.43
-- nghttp2: version 1.40.0-r0 (included in Alpine edge main)
-- OpenSSL: version 1.1.1g-r0 (included in Alpine edge main)
-- Brotli: version 1.0.7-r4 (included in Alpine edge testing)
+- nghttp2 1.41.0-r0
+- openssl 1.1.1g-r0
+- brotli 1.0.7-r5
+
+Patch included for the following Apache bug: https://bz.apache.org/bugzilla/show_bug.cgi?id=64537
 
 # Maintainer
 This container is built and maintained by [Cedric Roijakkers](mailto:cedric@roijakkers.be).
