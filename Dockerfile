@@ -16,7 +16,7 @@ WORKDIR $HTTPD_PREFIX
 # library for mod_http2, mod_ssl, and brotli (part of debian sid)
 ENV NGHTTP2_VERSION 1.41.0-2
 ENV OPENSSL_VERSION 1.1.1g-1
-ENV BROTLI_VERSION 1.0.7-6.1
+ENV BROTLI_VERSION 1.0.7-7
 
 # install httpd runtime dependencies
 # https://httpd.apache.org/docs/2.4/install.html#requirements

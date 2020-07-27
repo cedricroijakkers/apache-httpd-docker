@@ -12,7 +12,7 @@ This container is numbered version 2.4.43, to match with the latest Apache code.
 - Apache http: version 2.4.43
 - nghttp2 1.41.0-2
 - openssl 1.1.1g-1
-- brotli 1.0.7-6.1
+- brotli 1.0.7-7
 
 ## Alpine-based build
 - Apache http: version 2.4.43

@@ -44,6 +44,7 @@ RUN set -eux; \
 	echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories && \
 	apk add --no-cache --virtual .build-deps \
 		$runDeps \
+		patch \
 		ca-certificates \
 		coreutils \
 		dpkg-dev dpkg \

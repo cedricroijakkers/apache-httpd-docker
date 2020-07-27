@@ -1,3 +1,22 @@
+# Release 2.4.43.3
+New release because Debian Linux switched to GCC 10, causing downstream builds to fail. Also updated dependencies (Brotli). Alpine image has not been changed, but version tag increased anyway.
+
+Software versions:
+
+Debian-based:
+
+* Apache httpd 2.4.43
+* nghttp2 1.41.0-2
+* openssl 1.1.1g-1
+* brotli 1.0.7-7
+
+Alpine-based:
+
+* Apache httpd 2.4.43
+* nghttp2 1.41.0-r0
+* openssl 1.1.1g-r0
+* brotli 1.0.7-r5
+
 # Release 2.4.43.2
 Updated dependencies (Debian: OpenSSL and Brotli; Alpine: OpenSSL) and added patch for Apache bug 64537.
 
