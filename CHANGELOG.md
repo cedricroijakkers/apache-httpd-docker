@@ -1,3 +1,22 @@
+# Release 2.4.46
+Updated Apache httpd to version 2.4.46 and updated Brotli to 1.0.9.
+
+Software versions:
+
+Debian-based:
+
+* Apache httpd: 2.4.46
+* nghttp2: 1.41.0-3
+* openssl: 1.1.1g-1
+* brotli: 1.0.9-2
+
+Alpine-based:
+
+* Apache httpd: 2.4.46
+* nghttp2: 1.41.0-r0
+* openssl: 1.1.1g-r0
+* brotli: 1.0.9-r0
+
 # Release 2.4.43.3
 New release because Debian Linux switched to GCC 10, causing downstream builds to fail. Also updated dependencies (Brotli). Alpine image has not been changed, but version tag increased anyway.
 
