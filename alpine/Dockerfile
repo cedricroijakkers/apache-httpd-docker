@@ -3,9 +3,9 @@ FROM alpine:edge
 LABEL maintainer="Cedric Roijakkers <cedric@roijakkers.be>"
 
 # library for mod_http2, mod_ssl, and brotli (part of alpine edge)
-ARG NGHTTP2_VERSION=1.41.0-r0
-ARG OPENSSL_VERSION=1.1.1g-r0
-ARG BROTLI_VERSION=1.0.9-r0
+ARG NGHTTP2_VERSION=1.43.0-r0
+ARG OPENSSL_VERSION=1.1.1k-r1
+ARG BROTLI_VERSION=1.0.9-r5
 
 # ensure www-data user exists
 RUN set -x \
@@ -25,16 +25,12 @@ ARG HTTPD_SHA256=740eddf6e1c641992b22359cabc66e6325868c3c5e2e3f98faf349b61ecf41e
 # https://httpd.apache.org/security/vulnerabilities_24.html
 ARG HTTPD_PATCHES=""
 
-# Add patches that need to be applied
-ADD patches/bug_64537.patch /tmp/bug_64537.patch
-
 # see https://httpd.apache.org/docs/2.4/install.html#requirements
 RUN set -eux; \
 	\
 	runDeps=' \
 		apr \
 		apr-util \
-		apr-util-dbm_db \
 		apr-util-ldap \
 		perl \
 		curl \
@@ -71,8 +67,6 @@ RUN set -eux; \
 		zlib-dev \
 		# mod_brotli
 		brotli-dev=$BROTLI_VERSION \
-		# for custom patches
-		patch \
 	; \
 	\
 	ddist() { \
@@ -165,13 +159,13 @@ RUN set -eux; \
 # Yann Ylavic <ylavic@apache.org>
 		8935926745E1CE7E3ED748F6EC99EE267EB5F61A \
 # Daniel Ruggeri (http\x3a//home.apache.org/~druggeri/) <druggeri@apache.org>
-		B9E8213AEFB861AF35A41F2C995E35221AD84DFF \
-# Daniel Ruggeri (http\x3a//home.apache.org/~druggeri/) <druggeri@apache.org>
 		E3480043595621FE56105F112AB12A7ADC55C003 \
 # Joe Orton (Release Signing Key) <jorton@apache.org>
 		93525CFCF6FDFFB3FD9700DD5A4B10AE43B56A27 \
+# Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+		C55AB7B9139EB2263CD1AABC19B033D1760C227B \
 	; do \
-		gpg --batch --keyserver p80.pool.sks-keyservers.net --recv-keys "$key"; \
+		gpg --batch --keyserver keyserver.ubuntu.com --recv-keys "$key"; \
 	done; \
 	gpg --batch --verify httpd.tar.bz2.asc httpd.tar.bz2; \
 	command -v gpgconf && gpgconf --kill all || :; \
@@ -195,9 +189,6 @@ RUN set -eux; \
 	patches $HTTPD_PATCHES; \
 	\
 	gnuArch="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)"; \
-	# apply the necessary patches
-	patch -p0 < /tmp/bug_64537.patch; \
-	rm -rf /tmp/bug_64537.patch; \
 	./configure \
 		--build="$gnuArch" \
 		--prefix="$HTTPD_PREFIX" \

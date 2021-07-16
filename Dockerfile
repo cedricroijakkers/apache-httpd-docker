@@ -11,18 +11,15 @@ RUN mkdir -p "$HTTPD_PREFIX" \
 WORKDIR $HTTPD_PREFIX
 
 # library for mod_http2, mod_ssl, and brotli (part of debian sid)
-ARG NGHTTP2_VERSION=1.41.0-3
-ARG OPENSSL_VERSION=1.1.1g-1
-ARG BROTLI_VERSION=1.0.9-2
+ARG NGHTTP2_VERSION=1.43.0-1
+ARG OPENSSL_VERSION=1.1.1k-1
+ARG BROTLI_VERSION=1.0.9-2+b2
 
-ARG HTTPD_VERSION=2.4.46
-ARG HTTPD_SHA256=740eddf6e1c641992b22359cabc66e6325868c3c5e2e3f98faf349b61ecf41ea
+ARG HTTPD_VERSION=2.4.48
+ARG HTTPD_SHA256=1bc826e7b2e88108c7e4bf43c026636f77a41d849cfb667aa7b5c0b86dbf966c
 
 # https://httpd.apache.org/security/vulnerabilities_24.html
 ENV HTTPD_PATCHES=""
-
-# Add patches that need to be applied
-ADD patches/bug_64537.patch /tmp/bug_64537.patch
 
 # install httpd runtime dependencies
 # https://httpd.apache.org/docs/2.4/install.html#requirements
@@ -155,13 +152,13 @@ RUN set -eux; \
 # Yann Ylavic <ylavic@apache.org>
 		8935926745E1CE7E3ED748F6EC99EE267EB5F61A \
 # Daniel Ruggeri (http\x3a//home.apache.org/~druggeri/) <druggeri@apache.org>
-		B9E8213AEFB861AF35A41F2C995E35221AD84DFF \
-# Daniel Ruggeri (http\x3a//home.apache.org/~druggeri/) <druggeri@apache.org>
 		E3480043595621FE56105F112AB12A7ADC55C003 \
 # Joe Orton (Release Signing Key) <jorton@apache.org>
 		93525CFCF6FDFFB3FD9700DD5A4B10AE43B56A27 \
+# Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+		C55AB7B9139EB2263CD1AABC19B033D1760C227B \
 	; do \
-		gpg --batch --keyserver p80.pool.sks-keyservers.net --recv-keys "$key"; \
+		gpg --batch --keyserver keyserver.ubuntu.com --recv-keys "$key"; \
 	done; \
 	gpg --batch --verify httpd.tar.bz2.asc httpd.tar.bz2; \
 	command -v gpgconf && gpgconf --kill all || :; \
@@ -185,9 +182,6 @@ RUN set -eux; \
 	patches $HTTPD_PATCHES; \
 	\
 	gnuArch="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)"; \
-	# apply the necessary patches
-	patch -p0 < /tmp/bug_64537.patch; \
-	rm -rf /tmp/bug_64537.patch; \
 	CFLAGS="$(dpkg-buildflags --get CFLAGS)"; \
 	CPPFLAGS="$(dpkg-buildflags --get CPPFLAGS)"; \
 	LDFLAGS="$(dpkg-buildflags --get LDFLAGS)"; \

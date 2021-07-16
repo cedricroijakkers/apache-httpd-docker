@@ -1,3 +1,22 @@
+# Release 2.4.48
+Updated Apache httpd to version 2.4.48, OpenSSL to 1.1.1k, nghttp2 to 1.43.0, and removed patch for bug 64537 which is now part of Apache 2.4.48.
+
+Software versions:
+
+Debian-based:
+
+* Apache httpd: 2.4.48
+* nghttp2: 1.43.0-1
+* openssl: 1.1.1k-1
+* brotli: 1.0.9-2+b2
+
+Alpine-based:
+
+* Apache httpd: 2.4.48
+* nghttp2: 1.43.0-r0
+* openssl: 1.1.1k-r1
+* brotli: 1.0.9-r5
+
 # Release 2.4.46
 Updated Apache httpd to version 2.4.46 and updated Brotli to 1.0.9.
 
